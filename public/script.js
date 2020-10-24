@@ -6,7 +6,11 @@ let data;
 let currentTrack = 0;
 let totalTracks = 0;
 
-let songArray = [['Number', 'Name', 'Artist', 'Album']]; // Define first row of 2D array
+let totalSeconds = 0;
+
+let songArray = [
+	['ID', 'Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On'],
+]; // Define first row of 2D array
 
 async function getSavedTracks(
 	url = 'https://api.spotify.com/v1/me/tracks?limit=50',
@@ -37,7 +41,9 @@ async function getSavedTracks(
 			totalTracks = data.total;
 			data.items.forEach(generateTableRecords);
 			if (data.next) {
-				getSavedTracks(data.next);
+				// getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+				createStats();
+			} else {
 			}
 		})
 		.catch((error) => {
@@ -48,22 +54,56 @@ async function getSavedTracks(
 function generateTableRecords(item) {
 	const template = document.querySelector('#tableRecord');
 	const clone = document.importNode(template.content, true);
+	clone.querySelector('#id').textContent = item.track.id;
 	clone.querySelector('#number').textContent = totalTracks - currentTrack;
 	clone.querySelector('#name').textContent = item.track.name;
-	clone.querySelector('#artist').textContent = item.track.artists[0].name;
+
+	let artists = [];
+
+	item.track.artists.map((artist) => {
+		artists.push(artist.name);
+	});
+
+	clone.querySelector('#artist').textContent = artists.slice(0, 5).join(', ');
 	clone.querySelector('#album').textContent = item.track.album.name;
+
+	const total = Math.ceil(item.track.duration_ms / 1000);
+
+	totalSeconds += total;
+
+	let minutes = String(Math.floor(total / 60));
+	minutes = minutes.padStart(2, '0');
+	let seconds = String(total % 60);
+	seconds = seconds.padStart(2, '0');
+	clone.querySelector('#duration').textContent = `${minutes}:${seconds}`;
+
+	const addedAtDate = new Date(item.added_at).toLocaleString('en-GB');
+	clone.querySelector('#added').textContent = addedAtDate;
 
 	document.querySelector('#tableBody').appendChild(clone);
 
+	// Add info to Array
 	let trackArr = [];
+	trackArr.push(item.track.id); // Track Num
 	trackArr.push(totalTracks - currentTrack); // Track Num
 	trackArr.push(item.track.name); // Track Name
 	trackArr.push(item.track.artists[0].name); // Artist Name
 	trackArr.push(item.track.album.name); // Artist Name
+	trackArr.push(`${minutes}:${seconds}`); // Song Duration
+	trackArr.push(addedAtDate); // Song added at
 
 	songArray.push(trackArr);
 
 	currentTrack++;
+}
+
+function createStats() {
+	let hours = String(Math.floor(totalSeconds / 60 / 60));
+	hours = hours.padStart(2, '0');
+	let minutes = String(Math.floor((totalSeconds / 60) % 60));
+	minutes = minutes.padStart(2, '0');
+
+	document.querySelector('#totalTime').textContent = `${hours}:${minutes}`;
 }
 
 async function refreshCurrent() {

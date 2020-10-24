@@ -10,17 +10,23 @@
 	<body>
 		<a href="./login">Login</a>
 		<hr />
+
+		<h2>Total Duration (Hours : Minutes):</h2>
+		<p id="totalTime"></p>
+
 		<h1>All Saved Songs</h1>
 		<button id="btnExport">EXPORT AS CSV</button>
 		<!-- <button id="btnRefresh">Refresh</button> -->
 		<table>
 			<thead>
 				<tr>
+					<th>ID</th>
 					<th>No.</th>
 					<th>Song</th>
 					<th>Artist</th>
 					<th>Album</th>
 					<th>Duration</th>
+					<th>Added At</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody"></tbody>
@@ -30,10 +36,12 @@
 
 <template id="tableRecord">
 	<tr>
+		<td id="id">10</td>
 		<td id="number">10</td>
 		<td id="name">this is a song</td>
 		<td id="artist">Artist</td>
 		<td id="album">Album</td>
 		<td id="duration">Duration</td>
+		<td id="added">Added</td>
 	</tr>
 </template>
