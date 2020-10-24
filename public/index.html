@@ -4,44 +4,56 @@
 		<script src="./script.js"></script>
 		<!-- Import Stylesheets -->
 		<link rel="stylesheet" href="./style.css" />
-
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
+		/>
 		<title>Saved Songs</title>
 	</head>
-	<body>
-		<a href="./login">Login</a>
+	<body style="padding: 0 1em 0 1em">
+		<a href="./login">Login with Spotify</a>
 		<hr />
 
-		<h2>Total Duration (Hours : Minutes):</h2>
-		<p id="totalTime"></p>
+		<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
+		<h2 class="subtitle is-6" id="totalSaved">Number of Saved Tracks:</h2>
 
-		<h1>All Saved Songs</h1>
+		<h1 class="title">All Saved Songs</h1>
 		<button id="btnExport">EXPORT AS CSV</button>
 		<!-- <button id="btnRefresh">Refresh</button> -->
-		<table>
+		<table class="table is-striped is-hoverable is-narrow">
 			<thead>
 				<tr>
-					<th>ID</th>
 					<th>No.</th>
 					<th>Song</th>
 					<th>Artist</th>
+					<th>Album Cover</th>
 					<th>Album</th>
 					<th>Duration</th>
 					<th>Added At</th>
+					<th>ID</th>
+					<th>Player</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody"></tbody>
 		</table>
 	</body>
+	<audio id="mainPlayer"></audio>
 </html>
 
 <template id="tableRecord">
 	<tr>
-		<td id="id">10</td>
 		<td id="number">10</td>
 		<td id="name">this is a song</td>
 		<td id="artist">Artist</td>
+		<!-- <td><img id="albumCover" style="max-height: 10em" /></td> -->
 		<td id="album">Album</td>
 		<td id="duration">Duration</td>
 		<td id="added">Added</td>
+		<td id="id">10</td>
+		<!-- <td><audio id="player" controls></audio></td> Default html player -->
+		<td>
+			<button id="btnPlay">Play</button>
+			<button id="btnStop">Stop</button>
+		</td>
 	</tr>
 </template>
