@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script src="./script.js"></script>
+		<!-- Import Stylesheets -->
+		<link rel="stylesheet" href="./style.css" />
+
+		<title>Saved Songs</title>
+	</head>
+	<body>
+		<a href="./login">Login</a>
+		<hr />
+		<h1>All Saved Songs</h1>
+		<button id="btnExport">EXPORT AS CSV</button>
+		<!-- <button id="btnRefresh">Refresh</button> -->
+		<table>
+			<thead>
+				<tr>
+					<th>No.</th>
+					<th>Song</th>
+					<th>Artist</th>
+					<th>Album</th>
+					<th>Duration</th>
+				</tr>
+			</thead>
+			<tbody id="tableBody"></tbody>
+		</table>
+	</body>
+</html>
+
+<template id="tableRecord">
+	<tr>
+		<td id="number">10</td>
+		<td id="name">this is a song</td>
+		<td id="artist">Artist</td>
+		<td id="album">Album</td>
+		<td id="duration">Duration</td>
+	</tr>
+</template>
