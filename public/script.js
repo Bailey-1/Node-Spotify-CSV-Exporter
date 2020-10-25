@@ -4,7 +4,11 @@
 	- Display infomation about the User e.g. profile pic, username, account age etc
 	- Allow users to paste in links for playlists - including private ones and offer the same features.
 	- Save access & refresh token to session storage and remove it from the hash
+	- Break script.js into modules
+	- Clear table before fetching new content
 */
+
+// import { getSavedTracks } from './scripts/listSaved';
 
 let search;
 let accessToken;
@@ -16,6 +20,11 @@ let totalTracks = 0;
 
 let totalSeconds = 0;
 
+let playlistObj = {
+	total: 0,
+	items: [],
+};
+
 let songArray = [
 	['Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On', 'ID'],
 ]; // Define first row of 2D array
@@ -23,38 +32,43 @@ let songArray = [
 async function getSavedTracks(
 	url = 'https://api.spotify.com/v1/me/tracks?limit=50',
 ) {
+	const data = await fetchAPI(url);
+	if (data) {
+		totalTracks = data.total;
+		data.items.forEach(generateTableRecords);
+		if (data.next) {
+			getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+		}
+		createStats();
+	}
+}
+
+async function fetchAPI(url) {
+	let data;
 	await fetch(url, {
 		method: 'GET',
 		headers: {
 			Authorization: 'Bearer ' + accessToken,
 		},
 	})
-		.then((response) => {
+		.then(async (response) => {
 			if (response.ok) {
-				return response.json();
+				data = response.json(); // If request is successful save the response as data
+				// return response.json();
 			} else if (response.status === 401) {
 				console.log(
 					'response status is 401. Which means access token is too old.',
 				);
-				refreshAccessToken();
+				await refreshAccessToken();
+				fetchAPI(url); // Fetch the same API again using the new access token
 			} else {
 				throw new Error('Something went wrong');
 			}
 		})
-		.then((responseJson) => {
-			// Do something with the response
-			console.log('[responseJson]: ', responseJson);
-			data = responseJson;
-			totalTracks = data.total;
-			data.items.forEach(generateTableRecords);
-			if (data.next) {
-				// getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
-			}
-			createStats();
-		})
 		.catch((error) => {
 			console.log(error);
 		});
+	return data;
 }
 
 function generateTableRecords(item) {
@@ -141,16 +155,11 @@ function createStats() {
 	).textContent = `Number of Saved Tracks: ${totalTracks}`;
 }
 
-async function refreshCurrent() {
-	await getSavedTracks();
-}
-
 async function refreshAccessToken() {
 	console.log('[refreshAccessToken()]');
 	const result = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
 	const data = await result.json();
 	accessToken = data.access_token;
-	refreshCurrent();
 }
 
 // CREDIT - https://stackoverflow.com/a/24922761/11213488
@@ -195,6 +204,41 @@ function exportToCsv(filename, rows) {
 	}
 }
 
+// Loop through all playlists
+async function getPlaylists(url = 'https://api.spotify.com/v1/me/playlists') {
+	const playlistData = await fetchAPI(url);
+	console.log('[playlistData]: ', playlistData);
+
+	if (playlistData) {
+		playlistObj.total = playlistData.total;
+		playlistObj.items.push(...playlistData.items);
+		if (playlistData.next) {
+			getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+		}
+
+		playlistData.items.forEach(addPlaylistSelectOption);
+	}
+}
+
+function addPlaylistSelectOption(option) {
+	const optionNode = document.createElement('option');
+	optionNode.value = option.id;
+	optionNode.textContent = `${option.name} - ${option.owner.display_name}`;
+	document.querySelector('#selectPlaylist').appendChild(optionNode);
+}
+
+async function getAccountInfo() {
+	const data = await fetchAPI('https://api.spotify.com/v1/me');
+	console.log('[AccountData]: ', data);
+
+	document.querySelector('#spotifyLogin').classList.add('is-hidden');
+
+	document.querySelector('#accountDetails').classList.remove('is-hidden');
+	document.querySelector('#accountName').textContent = data.display_name;
+
+	getPlaylists();
+}
+
 async function init() {
 	document.querySelector('#btnExport').addEventListener('click', function () {
 		exportToCsv('tracklist.csv', songArray);
@@ -206,13 +250,19 @@ async function init() {
 			window.location.href = '/login';
 		});
 
-	search = location.hash.slice(1).split('&');
-	accessToken = search[0].slice(13); // cut off beginning of string array element
-	refreshToken = search[1].slice(14);
-	console.log('access ', accessToken);
-	console.log('refresh ', refreshToken);
+	document.querySelector('#btnSelectSaved').addEventListener('click', () => {
+		getSavedTracks();
+	});
 
-	refreshCurrent();
+	if (location.hash) {
+		search = location.hash.slice(1).split('&');
+		accessToken = search[0].slice(13); // cut off beginning of string array element
+		refreshToken = search[1].slice(14);
+		console.log('access ', accessToken);
+		console.log('refresh ', refreshToken);
+		document.querySelector('#optionBtns').classList.toggle('is-hidden');
+		getAccountInfo();
+	}
 }
 
 window.addEventListener('load', init);

@@ -3,7 +3,7 @@
 	<head>
 		<script src="./script.js"></script>
 		<!-- Import Stylesheets -->
-		<link rel="stylesheet" href="./style.css" />
+		<!-- <link rel="stylesheet" href="./style.css" /> -->
 		<link
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
@@ -14,11 +14,16 @@
 		<section class="hero is-medium is-info is-bold">
 			<div class="hero-body">
 				<div class="container">
-					<h1 class="title">Spotify Saved Songs & Playlist CSV Generator</h1>
-					<h2 class="subtitle">Signed in as <b>baileysear488</b></h2>
+					<h1 class="title is-1">
+						Spotify Saved Songs & Playlist CSV Generator
+					</h1>
+					<div id="accountDetails" class="is-hidden">
+						<h2 class="subtitle">Signed in as <b id="accountName"></b></h2>
+						<h2 id="accountPlaylists" class="subtitle"></h2>
+					</div>
 					<button
 						id="spotifyLogin"
-						class="button is-large is-hidden"
+						class="button is-large"
 						style="background-color: #1db954; color: #ffffff"
 					>
 						<img
@@ -27,15 +32,17 @@
 						/>
 						Sign in with Spotify
 					</button>
-					<div class="buttons is-centered">
-						<button class="button is-primary">Saved Tracks</button>
+					<div id="optionBtns" class="buttons is-centered is-hidden">
+						<button class="button is-primary" id="btnSelectSaved">
+							Saved Tracks
+						</button>
+						<!-- <button class="button is-success">Select a Playlist</button> -->
 						<button class="button is-success">Select a Playlist</button>
+						<select id="selectPlaylist"></select>
 					</div>
 				</div>
 			</div>
 		</section>
-		<!-- <a href="./login">Login with Spotify</a> -->
-		<!-- <hr /> -->
 		<div>
 			<div>
 				<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
@@ -47,7 +54,7 @@
 			</div>
 		</div>
 
-		<table class="table is-striped is-hoverable is-narrow">
+		<table class="table is-striped is-hoverable is-narrow is-fullwidth">
 			<thead>
 				<tr>
 					<th>No.</th>
