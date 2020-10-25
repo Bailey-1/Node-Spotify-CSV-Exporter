@@ -8,9 +8,6 @@
 	- Clear table before fetching new content
 */
 
-// import { getSavedTracks } from './scripts/listSaved';
-
-let search;
 let accessToken;
 let refreshToken;
 
@@ -29,15 +26,30 @@ let songArray = [
 	['Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On', 'ID'],
 ]; // Define first row of 2D array
 
-async function getSavedTracks(
-	url = 'https://api.spotify.com/v1/me/tracks?limit=50',
-) {
+// Rich did this
+function removeContentFrom(what) {
+	while (what.firstElementChild) {
+		what.firstElementChild.remove();
+	}
+}
+
+function resetTable() {
+	removeContentFrom(document.querySelector('#tableBody'));
+	currentTrack = 0;
+	totalTracks = 0;
+	data = null;
+	songArray = [
+		['Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On', 'ID'],
+	];
+}
+
+async function getTracks(url) {
 	const data = await fetchAPI(url);
 	if (data) {
 		totalTracks = data.total;
 		data.items.forEach(generateTableRecords);
 		if (data.next) {
-			getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+			// getTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 		}
 		createStats();
 	}
@@ -160,6 +172,8 @@ async function refreshAccessToken() {
 	const result = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
 	const data = await result.json();
 	accessToken = data.access_token;
+	window.location.hash = `access_token=${accessToken}&refresh_token=${refreshToken}`;
+	location.reload();
 }
 
 // CREDIT - https://stackoverflow.com/a/24922761/11213488
@@ -205,7 +219,9 @@ function exportToCsv(filename, rows) {
 }
 
 // Loop through all playlists
-async function getPlaylists(url = 'https://api.spotify.com/v1/me/playlists') {
+async function getPlaylists(
+	url = 'https://api.spotify.com/v1/me/playlists?limit=50',
+) {
 	const playlistData = await fetchAPI(url);
 	console.log('[playlistData]: ', playlistData);
 
@@ -213,7 +229,7 @@ async function getPlaylists(url = 'https://api.spotify.com/v1/me/playlists') {
 		playlistObj.total = playlistData.total;
 		playlistObj.items.push(...playlistData.items);
 		if (playlistData.next) {
-			getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+			// getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 		}
 
 		playlistData.items.forEach(addPlaylistSelectOption);
@@ -239,6 +255,13 @@ async function getAccountInfo() {
 	getPlaylists();
 }
 
+async function loadPlaylist(id) {
+	const data = await fetchAPI(`https://api.spotify.com/v1/playlists/${id}`);
+	console.log('[loadPlaylist]: ', data);
+	resetTable();
+	getTracks(data.tracks.href);
+}
+
 async function init() {
 	document.querySelector('#btnExport').addEventListener('click', function () {
 		exportToCsv('tracklist.csv', songArray);
@@ -251,11 +274,24 @@ async function init() {
 		});
 
 	document.querySelector('#btnSelectSaved').addEventListener('click', () => {
-		getSavedTracks();
+		resetTable();
+		getTracks('https://api.spotify.com/v1/me/tracks?limit=50'); // Inital saved tracks call
 	});
 
+	document.querySelector('#btnSelectPlaylist').addEventListener('click', () => {
+		document.querySelector('#selectPlaylist').classList.remove('is-hidden');
+	});
+
+	document
+		.querySelector('#selectPlaylist')
+		.addEventListener('change', (obj) => {
+			const value = document.querySelector('#selectPlaylist').value;
+			console.log('selected playlist', value);
+			loadPlaylist(value);
+		});
+
 	if (location.hash) {
-		search = location.hash.slice(1).split('&');
+		const search = location.hash.slice(1).split('&');
 		accessToken = search[0].slice(13); // cut off beginning of string array element
 		refreshToken = search[1].slice(14);
 		console.log('access ', accessToken);
