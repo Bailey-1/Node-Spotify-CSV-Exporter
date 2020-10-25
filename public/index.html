@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<script src="./script.js"></script>
+		<script type="module" src="./script.js"></script>
 		<!-- Import Stylesheets -->
 		<!-- <link rel="stylesheet" href="./style.css" /> -->
 		<link
@@ -17,6 +17,7 @@
 					<h1 class="title is-1">
 						Spotify Saved Songs & Playlist CSV Generator
 					</h1>
+					<hr />
 					<div id="accountDetails" class="is-hidden">
 						<h2 class="subtitle">
 							Signed in as
@@ -35,62 +36,129 @@
 						/>
 						Sign in with Spotify
 					</button>
-					<div id="optionBtns" class="buttons is-centered is-hidden">
-						<button class="button is-primary" id="btnSelectSaved">
-							Saved Tracks
-						</button>
-						<!-- <button class="button is-success">Select a Playlist</button> -->
-						<button class="button is-success" id="btnSelectPlaylist">
-							Select a Playlist
-						</button>
-						<select id="selectPlaylist" class="is-hidden">
-							<option value="null">Pick a Playlist!</option>
-						</select>
+
 					</div>
 				</div>
 			</div>
 		</section>
-		<div>
-			<div>
-				<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
-				<h2 class="subtitle is-6" id="totalSaved">Number of Saved Tracks:</h2>
+		<section class="section">
+			<h2 class="subtitle is-4">Choose a type:</h2>
+			<div class="tabs is-boxed is-centered is-fullwidth is-toggle">
+				<ul>
+				  	<li id="btnSelectSavedTab">
+						<a id="btnSelectSaved">Saved Tracks</a>
+				  	</li>
+				  	<li id="btnSelectPlaylistTab">
+						<a id="btnSelectPlaylist">Playlist</a>
+				  	</li>
+				</ul>
+			  </div>
+			<div id="optionsContainer" class="container is-hidden">
+				<nav id="selectPlaylistDiv" class="is-hidden">
+					<p class="panel-heading">CSV Options:</p>
+					<div class="panel-block">
+						<label class="label">Choose a playlist:</label>
+						<div class="select" style="padding-left: 1em">
+							<select id="selectPlaylist">
+								<option value="null">Pick a Playlist!</option>
+							</select>
+						</div>
+					</div>
+				</nav>
 
-				<h1 class="title">All Saved Songs</h1>
-				<button id="btnExport">EXPORT AS CSV</button>
-				<!-- <button id="btnRefresh">Refresh</button> -->
+				<nav class="panel">
+					<p class="panel-heading">Include the following fields in the CSV file:</p>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Playlist Number:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Track Name:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Artist:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Album:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Disc Number:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Track Number:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Duration:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Added At:
+					</label>
+					<label class="panel-block">
+						<input type="checkbox" />
+						Spotify ID:
+					</label>
+
+					<div class="panel-block">
+						<button id="btnExport" class="button is-link is-fullwidth is-disabled">
+							Export as CSV
+						</button>
+					</div>
+				</nav>
 			</div>
-		</div>
+		</section>
 
-		<table class="table is-striped is-hoverable is-narrow is-fullwidth">
-			<thead>
-				<tr>
-					<th>No.</th>
-					<th>Song</th>
-					<th>Artist</th>
-					<th>Album</th>
-					<th>Disc No.</th>
-					<th>Track No.</th>
-					<th>Duration</th>
-					<th>Added At</th>
-					<th>ID</th>
-					<th>Play 30s Demo</th>
-				</tr>
-			</thead>
-			<tbody id="tableBody"></tbody>
-		</table>
+		<section class="">
+			<div class="container">
+				<div>
+					<div>
+						<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
+						<h2 class="subtitle is-6" id="totalSaved">Number of Saved Tracks:</h2>
+				
+						<h1 class="title">All Saved Songs</h1>
+						<!-- <button id="btnExport">EXPORT AS CSV</button> -->
+						<!-- <button id="btnRefresh">Refresh</button> -->
+					</div>
+				</div>
+		
+				<table class="table is-striped is-hoverable is-narrow is-fullwidth">
+					<thead>
+						<tr>
+							<th>No.</th>
+							<th>Song</th>
+							<th>Artist</th>
+							<th>Album</th>
+							<th>Disc No.</th>
+							<th>Track No.</th>
+							<th>Duration</th>
+							<th>Added At</th>
+							<th>ID</th>
+							<th>Play 30s Demo</th>
+						</tr>
+					</thead>
+					<tbody id="tableBody"></tbody>
+				</table>
+			</div>
+		</section>
 	</body>
 	<audio id="mainPlayer"></audio>
 </html>
-
-<template id="tableRecord">
-	<tr>
-		<td id="number">Number in playlist</td>
-		<td id="name">Track Name</td>
-		<td id="artist">Artist</td>
-		<td id="album">Album</td>
-		<td id="diskNum">DiscNum</td>
-		<td id="trackNum">TrackNum</td>
-		<td id="duration">Duration</td>
+	
+	<template id="tableRecord">
+		<tr>
+			<td id="number">Number in playlist</td>
+			<td id="name">Track Name</td>
+			<td id="artist">Artist</td>
+			<td id="album">Album</td>
+			<td id="diskNum">DiscNum</td>
+			<td id="trackNum">TrackNum</td>
+			<td id="duration">Duration</td>
 		<td id="added">Added on date</td>
 		<td id="id">SpotifyID</td>
 		<td>

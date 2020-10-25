@@ -1,9 +1,21 @@
+import {
+	removeContentFrom,
+	exportToCsv,
+	createStats,
+	playDemo,
+	stopDemo,
+	fetchAPI,
+} from './scripts/utility.js';
+import { savedTabSelected, playlistTabSelected } from './scripts/options.js';
+import { addPlaylistSelectOption } from './scripts/listPlaylist.js';
+
 /* 
 	TODO: 
 	- allow users to select data to save to the CSV.
 	- Display infomation about the User e.g. profile pic, username, account age etc
 	- Save access & refresh token to session storage and remove it from the hash
 	- Break script.js into modules
+	- Create a footer and link it back to website, github and twitter etc
 */
 
 let accessToken;
@@ -56,51 +68,16 @@ function resetTable() {
 	];
 }
 
-// Rich did this
-function removeContentFrom(what) {
-	while (what.firstElementChild) {
-		what.firstElementChild.remove();
-	}
-}
-
 async function getTracks(url) {
-	const data = await fetchAPI(url);
+	const data = await fetchAPI(accessToken, refreshToken, url);
 	if (data) {
 		totalTracks = data.total;
 		data.items.forEach(generateTableRecords);
 		if (data.next) {
 			// getTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 		}
-		createStats();
+		createStats(totalSeconds, totalTracks);
 	}
-}
-
-async function fetchAPI(url) {
-	let data;
-	await fetch(url, {
-		method: 'GET',
-		headers: {
-			Authorization: 'Bearer ' + accessToken,
-		},
-	})
-		.then(async (response) => {
-			if (response.ok) {
-				data = response.json(); // If request is successful save the response as data
-				// return response.json();
-			} else if (response.status === 401) {
-				console.log(
-					'response status is 401. Which means access token is too old.',
-				);
-				await refreshAccessToken();
-				fetchAPI(url); // Fetch the same API again using the new access token
-			} else {
-				throw new Error('Something went wrong');
-			}
-		})
-		.catch((error) => {
-			console.log(error);
-		});
-	return data;
 }
 
 function generateTableRecords(item) {
@@ -165,115 +142,12 @@ function generateTableRecords(item) {
 	currentTrack++;
 }
 
-function playDemo(preview_url) {
-	const player = document.querySelector('#mainPlayer');
-	if (preview_url) {
-		player.src = preview_url;
-	} else {
-		alert('[ERROR]: Selected song has no available preview. ');
-	}
-	player.play();
-}
-
-function stopDemo() {
-	const player = document.querySelector('#mainPlayer');
-	player.pause();
-}
-
-function createStats() {
-	let hours = String(Math.floor(totalSeconds / 60 / 60));
-	hours = hours.padStart(2, '0');
-	let minutes = String(Math.floor((totalSeconds / 60) % 60));
-	minutes = minutes.padStart(2, '0');
-
-	document.querySelector(
-		'#totalTime',
-	).textContent = `Total Duration: ${hours}:${minutes}`;
-
-	document.querySelector(
-		'#totalSaved',
-	).textContent = `Number of Saved Tracks: ${totalTracks}`;
-}
-
-// Get a new access token from the refresh access token & reload the page to use it
-async function refreshAccessToken() {
-	console.log('[refreshAccessToken()]');
-	const result = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
-	const data = await result.json();
-	accessToken = data.access_token;
-	window.location.hash = `access_token=${accessToken}&refresh_token=${refreshToken}`;
-	location.reload();
-}
-
-// CREDIT - https://stackoverflow.com/a/24922761/11213488
-function exportToCsv(filename, rows) {
-	var processRow = function (row) {
-		var finalVal = '';
-		for (var j = 0; j < row.length; j++) {
-			var innerValue = row[j] === null ? '' : row[j].toString();
-			if (row[j] instanceof Date) {
-				innerValue = row[j].toLocaleString();
-			}
-			var result = innerValue.replace(/"/g, '""');
-			if (result.search(/("|,|\n)/g) >= 0) result = '"' + result + '"';
-			if (j > 0) finalVal += ',';
-			finalVal += result;
-		}
-		return finalVal + '\n';
-	};
-
-	var csvFile = '';
-	for (var i = 0; i < rows.length; i++) {
-		csvFile += processRow(rows[i]);
-	}
-
-	var blob = new Blob([csvFile], { type: 'text/csv;charset=utf-8;' });
-	if (navigator.msSaveBlob) {
-		// IE 10+
-		navigator.msSaveBlob(blob, filename);
-	} else {
-		var link = document.createElement('a');
-		if (link.download !== undefined) {
-			// feature detection
-			// Browsers that support HTML5 download attribute
-			var url = URL.createObjectURL(blob);
-			link.setAttribute('href', url);
-			link.setAttribute('download', filename);
-			link.style.visibility = 'hidden';
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-		}
-	}
-}
-
-// Loop through all playlists
-async function getPlaylists(
-	url = 'https://api.spotify.com/v1/me/playlists?limit=50',
-) {
-	const playlistData = await fetchAPI(url);
-	console.log('[playlistData]: ', playlistData);
-
-	if (playlistData) {
-		playlistObj.total = playlistData.total;
-		playlistObj.items.push(...playlistData.items);
-		if (playlistData.next) {
-			// getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
-		}
-
-		playlistData.items.forEach(addPlaylistSelectOption);
-	}
-}
-
-function addPlaylistSelectOption(option) {
-	const optionNode = document.createElement('option');
-	optionNode.value = option.id;
-	optionNode.textContent = `${option.name} - ${option.owner.display_name}`;
-	document.querySelector('#selectPlaylist').appendChild(optionNode);
-}
-
 async function getAccountInfo() {
-	const data = await fetchAPI('https://api.spotify.com/v1/me');
+	const data = await fetchAPI(
+		accessToken,
+		refreshToken,
+		'https://api.spotify.com/v1/me',
+	);
 	console.log('[AccountData]: ', data);
 
 	document.querySelector('#spotifyLogin').classList.add('is-hidden');
@@ -286,10 +160,31 @@ async function getAccountInfo() {
 }
 
 async function loadPlaylist(id) {
-	const data = await fetchAPI(`https://api.spotify.com/v1/playlists/${id}`);
+	const data = await fetchAPI(
+		accessToken,
+		refreshToken,
+		`https://api.spotify.com/v1/playlists/${id}`,
+	);
 	console.log('[loadPlaylist]: ', data);
 	resetTable();
 	getTracks(data.tracks.href);
+}
+
+// Loop through all playlists from the user
+async function getPlaylists(
+	url = 'https://api.spotify.com/v1/me/playlists?limit=50',
+) {
+	const playlistData = await fetchAPI(accessToken, refreshToken, url);
+	console.log('[playlistData]: ', playlistData);
+
+	if (playlistData) {
+		playlistObj.total = playlistData.total;
+		playlistObj.items.push(...playlistData.items);
+		if (playlistData.next) {
+			// getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+		}
+		playlistData.items.forEach(addPlaylistSelectOption);
+	}
 }
 
 async function init() {
@@ -304,13 +199,14 @@ async function init() {
 		});
 
 	document.querySelector('#btnSelectSaved').addEventListener('click', () => {
+		savedTabSelected();
 		resetTable();
 		isPlaylist = false;
 		getTracks('https://api.spotify.com/v1/me/tracks?limit=50'); // Inital saved tracks call
 	});
 
 	document.querySelector('#btnSelectPlaylist').addEventListener('click', () => {
-		document.querySelector('#selectPlaylist').classList.remove('is-hidden');
+		playlistTabSelected();
 	});
 
 	document
@@ -330,7 +226,7 @@ async function init() {
 		refreshToken = search[1].slice(14);
 		console.log('access ', accessToken);
 		console.log('refresh ', refreshToken);
-		document.querySelector('#optionBtns').classList.toggle('is-hidden');
+		// document.querySelector('#optionBtns').classList.toggle('is-hidden');
 		getAccountInfo();
 	}
 }

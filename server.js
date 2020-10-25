@@ -143,7 +143,7 @@ app.get('/refresh_token', function (req, res) {
 				access_token: access_token,
 			});
 		} else {
-			console.log('[error]: ', error);
+			console.log('[error]: ', response);
 		}
 	});
 });
