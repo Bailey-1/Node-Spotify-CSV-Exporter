@@ -1,3 +1,11 @@
+/* 
+	TODO: 
+	- allow users to select data to save to the CSV.
+	- Display infomation about the User e.g. profile pic, username, account age etc
+	- Allow users to paste in links for playlists - including private ones and offer the same features.
+	- Save access & refresh token to session storage and remove it from the hash
+*/
+
 let search;
 let accessToken;
 let refreshToken;
@@ -22,7 +30,6 @@ async function getSavedTracks(
 		},
 	})
 		.then((response) => {
-			// console.log('[response]: ', response);
 			if (response.ok) {
 				return response.json();
 			} else if (response.status === 401) {
@@ -41,10 +48,9 @@ async function getSavedTracks(
 			totalTracks = data.total;
 			data.items.forEach(generateTableRecords);
 			if (data.next) {
-				getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
-				createStats();
-			} else {
+				// getSavedTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 			}
+			createStats();
 		})
 		.catch((error) => {
 			console.log(error);
@@ -65,7 +71,6 @@ function generateTableRecords(item) {
 	});
 
 	clone.querySelector('#artist').textContent = artists.slice(0, 5).join(', ');
-	// clone.querySelector('#albumCover').src = item.track.album.images[0].url;
 	clone.querySelector('#album').textContent = item.track.album.name;
 
 	const total = Math.ceil(item.track.duration_ms / 1000);
@@ -108,7 +113,11 @@ function generateTableRecords(item) {
 
 function playDemo(preview_url) {
 	const player = document.querySelector('#mainPlayer');
-	player.src = preview_url;
+	if (preview_url) {
+		player.src = preview_url;
+	} else {
+		alert('[ERROR]: Selected song has no available preview. ');
+	}
 	player.play();
 }
 
@@ -190,6 +199,12 @@ async function init() {
 	document.querySelector('#btnExport').addEventListener('click', function () {
 		exportToCsv('tracklist.csv', songArray);
 	});
+
+	document
+		.querySelector('#spotifyLogin')
+		.addEventListener('click', function () {
+			window.location.href = '/login';
+		});
 
 	search = location.hash.slice(1).split('&');
 	accessToken = search[0].slice(13); // cut off beginning of string array element

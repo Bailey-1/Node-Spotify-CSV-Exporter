@@ -10,23 +10,49 @@
 		/>
 		<title>Saved Songs</title>
 	</head>
-	<body style="padding: 0 1em 0 1em">
-		<a href="./login">Login with Spotify</a>
-		<hr />
+	<body>
+		<section class="hero is-medium is-info is-bold">
+			<div class="hero-body">
+				<div class="container">
+					<h1 class="title">Spotify Saved Songs & Playlist CSV Generator</h1>
+					<h2 class="subtitle">Signed in as <b>baileysear488</b></h2>
+					<button
+						id="spotifyLogin"
+						class="button is-large is-hidden"
+						style="background-color: #1db954; color: #ffffff"
+					>
+						<img
+							src="./spotify-icons-logos/icons/01_RGB/02_PNG/Spotify_Icon_RGB_White.png"
+							style="max-height: 2em; padding-right: 1em"
+						/>
+						Sign in with Spotify
+					</button>
+					<div class="buttons is-centered">
+						<button class="button is-primary">Saved Tracks</button>
+						<button class="button is-success">Select a Playlist</button>
+					</div>
+				</div>
+			</div>
+		</section>
+		<!-- <a href="./login">Login with Spotify</a> -->
+		<!-- <hr /> -->
+		<div>
+			<div>
+				<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
+				<h2 class="subtitle is-6" id="totalSaved">Number of Saved Tracks:</h2>
 
-		<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
-		<h2 class="subtitle is-6" id="totalSaved">Number of Saved Tracks:</h2>
+				<h1 class="title">All Saved Songs</h1>
+				<button id="btnExport">EXPORT AS CSV</button>
+				<!-- <button id="btnRefresh">Refresh</button> -->
+			</div>
+		</div>
 
-		<h1 class="title">All Saved Songs</h1>
-		<button id="btnExport">EXPORT AS CSV</button>
-		<!-- <button id="btnRefresh">Refresh</button> -->
 		<table class="table is-striped is-hoverable is-narrow">
 			<thead>
 				<tr>
 					<th>No.</th>
 					<th>Song</th>
 					<th>Artist</th>
-					<th>Album Cover</th>
 					<th>Album</th>
 					<th>Duration</th>
 					<th>Added At</th>
@@ -45,12 +71,10 @@
 		<td id="number">10</td>
 		<td id="name">this is a song</td>
 		<td id="artist">Artist</td>
-		<!-- <td><img id="albumCover" style="max-height: 10em" /></td> -->
 		<td id="album">Album</td>
 		<td id="duration">Duration</td>
 		<td id="added">Added</td>
 		<td id="id">10</td>
-		<!-- <td><audio id="player" controls></audio></td> Default html player -->
 		<td>
 			<button id="btnPlay">Play</button>
 			<button id="btnStop">Stop</button>
