@@ -2,10 +2,8 @@
 	TODO: 
 	- allow users to select data to save to the CSV.
 	- Display infomation about the User e.g. profile pic, username, account age etc
-	- Allow users to paste in links for playlists - including private ones and offer the same features.
 	- Save access & refresh token to session storage and remove it from the hash
 	- Break script.js into modules
-	- Clear table before fetching new content
 */
 
 let accessToken;
@@ -22,16 +20,21 @@ let playlistObj = {
 	items: [],
 };
 
-let songArray = [
-	['Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On', 'ID'],
-]; // Define first row of 2D array
+let isPlaylist = false;
 
-// Rich did this
-function removeContentFrom(what) {
-	while (what.firstElementChild) {
-		what.firstElementChild.remove();
-	}
-}
+let songArray = [
+	[
+		'Number',
+		'Name',
+		'Artist',
+		'Album',
+		'Disc No.',
+		'Track No.',
+		'Duration',
+		'Added On',
+		'ID',
+	],
+]; // Define first row of 2D array
 
 function resetTable() {
 	removeContentFrom(document.querySelector('#tableBody'));
@@ -39,8 +42,25 @@ function resetTable() {
 	totalTracks = 0;
 	data = null;
 	songArray = [
-		['Number', 'Name', 'Artist', 'Album', 'Duration', 'Added On', 'ID'],
+		[
+			'Number',
+			'Name',
+			'Artist',
+			'Album',
+			'Disc No.',
+			'Track No.',
+			'Duration',
+			'Added On',
+			'ID',
+		],
 	];
+}
+
+// Rich did this
+function removeContentFrom(what) {
+	while (what.firstElementChild) {
+		what.firstElementChild.remove();
+	}
 }
 
 async function getTracks(url) {
@@ -86,8 +106,11 @@ async function fetchAPI(url) {
 function generateTableRecords(item) {
 	const template = document.querySelector('#tableRecord');
 	const clone = document.importNode(template.content, true);
+
 	clone.querySelector('#id').textContent = item.track.id;
-	clone.querySelector('#number').textContent = totalTracks - currentTrack;
+
+	const trackId = isPlaylist ? currentTrack + 1 : totalTracks - currentTrack;
+	clone.querySelector('#number').textContent = trackId;
 	clone.querySelector('#name').textContent = item.track.name;
 
 	let artists = [];
@@ -98,6 +121,9 @@ function generateTableRecords(item) {
 
 	clone.querySelector('#artist').textContent = artists.slice(0, 5).join(', ');
 	clone.querySelector('#album').textContent = item.track.album.name;
+
+	clone.querySelector('#diskNum').textContent = item.track.disc_number;
+	clone.querySelector('#trackNum').textContent = item.track.track_number;
 
 	const total = Math.ceil(item.track.duration_ms / 1000);
 
@@ -124,10 +150,12 @@ function generateTableRecords(item) {
 
 	// Add info to Array
 	let trackArr = [];
-	trackArr.push(totalTracks - currentTrack); // Track Num
+	trackArr.push(trackId); // Track Num
 	trackArr.push(item.track.name); // Track Name
 	trackArr.push(item.track.artists[0].name); // Artist Name
-	trackArr.push(item.track.album.name); // Artist Name
+	trackArr.push(item.track.album.name); // Album Name
+	trackArr.push(item.track.disc_number); // Disc Number
+	trackArr.push(item.track.track_number); // Track Number
 	trackArr.push(`${minutes}:${seconds}`); // Song Duration
 	trackArr.push(addedAtDate); // Song added at
 	trackArr.push(item.track.id); // Track Num
@@ -167,6 +195,7 @@ function createStats() {
 	).textContent = `Number of Saved Tracks: ${totalTracks}`;
 }
 
+// Get a new access token from the refresh access token & reload the page to use it
 async function refreshAccessToken() {
 	console.log('[refreshAccessToken()]');
 	const result = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
@@ -251,6 +280,7 @@ async function getAccountInfo() {
 
 	document.querySelector('#accountDetails').classList.remove('is-hidden');
 	document.querySelector('#accountName').textContent = data.display_name;
+	document.querySelector('#accountName').href = data.external_urls.spotify;
 
 	getPlaylists();
 }
@@ -275,6 +305,7 @@ async function init() {
 
 	document.querySelector('#btnSelectSaved').addEventListener('click', () => {
 		resetTable();
+		isPlaylist = false;
 		getTracks('https://api.spotify.com/v1/me/tracks?limit=50'); // Inital saved tracks call
 	});
 
@@ -287,7 +318,10 @@ async function init() {
 		.addEventListener('change', (obj) => {
 			const value = document.querySelector('#selectPlaylist').value;
 			console.log('selected playlist', value);
-			loadPlaylist(value);
+			if (value != 'null') {
+				isPlaylist = true;
+				loadPlaylist(value);
+			}
 		});
 
 	if (location.hash) {

@@ -18,7 +18,10 @@
 						Spotify Saved Songs & Playlist CSV Generator
 					</h1>
 					<div id="accountDetails" class="is-hidden">
-						<h2 class="subtitle">Signed in as <b id="accountName"></b></h2>
+						<h2 class="subtitle">
+							Signed in as
+							<a class="button is-info is-light is-small" id="accountName"></a>
+						</h2>
 						<h2 id="accountPlaylists" class="subtitle"></h2>
 					</div>
 					<button
@@ -65,10 +68,12 @@
 					<th>Song</th>
 					<th>Artist</th>
 					<th>Album</th>
+					<th>Disc No.</th>
+					<th>Track No.</th>
 					<th>Duration</th>
 					<th>Added At</th>
 					<th>ID</th>
-					<th>Player</th>
+					<th>Play 30s Demo</th>
 				</tr>
 			</thead>
 			<tbody id="tableBody"></tbody>
@@ -79,13 +84,15 @@
 
 <template id="tableRecord">
 	<tr>
-		<td id="number">10</td>
-		<td id="name">this is a song</td>
+		<td id="number">Number in playlist</td>
+		<td id="name">Track Name</td>
 		<td id="artist">Artist</td>
 		<td id="album">Album</td>
+		<td id="diskNum">DiscNum</td>
+		<td id="trackNum">TrackNum</td>
 		<td id="duration">Duration</td>
-		<td id="added">Added</td>
-		<td id="id">10</td>
+		<td id="added">Added on date</td>
+		<td id="id">SpotifyID</td>
 		<td>
 			<button id="btnPlay">Play</button>
 			<button id="btnStop">Stop</button>
