@@ -8,12 +8,14 @@ function removeContentFrom(what) {
 }
 
 // Get a new access token from the refresh access token & reload the page to use it
-async function refreshAccessToken(refreshToken) {
+async function refreshAccessToken() {
+	const refresh_token = sessionStorage.getItem('refresh_token');
 	console.log('[refreshAccessToken()]');
-	const result = await fetch(`/refresh_token?refresh_token=${refreshToken}`);
+	const result = await fetch(`/refresh_token?refresh_token=${refresh_token}`);
 	const data = await result.json();
-	const accessToken = data.access_token;
-	window.location.hash = `access_token=${accessToken}&refresh_token=${refreshToken}`;
+	const newRefreshToken = data.access_token;
+	sessionStorage.setItem('access_token', newRefreshToken);
+	// window.location.hash = `access_token=${accessToken}&refresh_token=${refreshToken}`;
 	location.reload();
 }
 
@@ -89,12 +91,14 @@ function createStats(totalSeconds, totalTracks) {
 	).textContent = `Number of Saved Tracks: ${totalTracks}`;
 }
 
-async function fetchAPI(accessToken, refreshToken, url) {
+async function fetchAPI(url) {
 	let data;
+	const access_token = sessionStorage.getItem('access_token');
+
 	await fetch(url, {
 		method: 'GET',
 		headers: {
-			Authorization: 'Bearer ' + accessToken,
+			Authorization: 'Bearer ' + access_token,
 		},
 	})
 		.then(async (response) => {
@@ -105,8 +109,8 @@ async function fetchAPI(accessToken, refreshToken, url) {
 				console.log(
 					'response status is 401. Which means access token is too old.',
 				);
-				await refreshAccessToken(accessToken, refreshToken);
-				// fetchAPI(accessToken, url); // Fetch the same API again using the new access token
+				await refreshAccessToken();
+				// fetchAPI(url); // Fetch the same API again using the new access token
 			} else {
 				throw new Error('Something went wrong');
 			}

@@ -1,0 +1,3 @@
+.tableColHide1 tr > *:nth-child(1) {
+	display: none;
+}

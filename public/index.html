@@ -3,15 +3,16 @@
 	<head>
 		<script type="module" src="./script.js"></script>
 		<!-- Import Stylesheets -->
-		<!-- <link rel="stylesheet" href="./style.css" /> -->
+		<link rel="stylesheet" href="./style.css" />
 		<link
 			rel="stylesheet"
 			href="https://cdn.jsdelivr.net/npm/bulma@0.9.1/css/bulma.min.css"
 		/>
 		<title>Saved Songs</title>
 	</head>
-	<body>
-		<section class="hero is-medium is-info is-bold">
+	<body style="display: flex; min-height: 100vh; flex-direction: column;">
+		<!-- Header -->
+		<section class="hero is-small is-info is-bold">
 			<div class="hero-body">
 				<div class="container">
 					<h1 class="title is-1">
@@ -22,8 +23,9 @@
 						<h2 class="subtitle">
 							Signed in as
 							<a class="button is-info is-light is-small" id="accountName"></a>
+							<a class="button is-danger is-light is-small" id="btnLogout">Logout</a>
 						</h2>
-						<h2 id="accountPlaylists" class="subtitle"></h2>
+						<h2 id="playlistsStats" class="subtitle"></h2>
 					</div>
 					<button
 						id="spotifyLogin"
@@ -41,6 +43,8 @@
 				</div>
 			</div>
 		</section>
+
+		<!-- Options -->
 		<section class="section">
 			<h2 class="subtitle is-4">Choose a type:</h2>
 			<div class="tabs is-boxed is-centered is-fullwidth is-toggle">
@@ -69,53 +73,59 @@
 				<nav class="panel">
 					<p class="panel-heading">Include the following fields in the CSV file:</p>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked id="checkboxPlaylistNumber"/>
 						Playlist Number:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Track Name:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Artist:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Album:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Disc Number:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Track Number:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Duration:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Added At:
 					</label>
 					<label class="panel-block">
-						<input type="checkbox" />
+						<input type="checkbox" checked/>
 						Spotify ID:
 					</label>
 
 					<div class="panel-block">
-						<button id="btnExport" class="button is-link is-fullwidth is-disabled">
+						<button id="btnExport" class="button is-link is-fullwidth">
 							Export as CSV
+						</button>
+					</div>
+					<div class="panel-block">
+						<button id="btnShowTable" class="button is-primary is-fullwidth" disabled>
+							Show Table
 						</button>
 					</div>
 				</nav>
 			</div>
 		</section>
 
-		<section class="">
-			<div class="container">
+		<!-- Table -->
+		<section style="flex-grow: 1;">
+			<div id="tableDiv" class="container is-hidden">
 				<div>
 					<div>
 						<h2 class="subtitle is-6" id="totalTime">Total Duration:</h2>
@@ -128,7 +138,7 @@
 				</div>
 		
 				<table class="table is-striped is-hoverable is-narrow is-fullwidth">
-					<thead>
+					<thead id="tableHead">
 						<tr>
 							<th>No.</th>
 							<th>Song</th>
@@ -146,6 +156,17 @@
 				</table>
 			</div>
 		</section>
+
+		<!-- Footer -->
+		<section class="hero has-background-info">
+			<div class="hero-body">
+			  <div class="container">
+				<h2 class="subtitle">
+				  Hero subtitle
+				</h2>
+			  </div>
+			</div>
+		  </section>
 	</body>
 	<audio id="mainPlayer"></audio>
 </html>

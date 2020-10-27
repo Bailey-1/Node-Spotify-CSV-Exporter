@@ -13,19 +13,23 @@ import { addPlaylistSelectOption } from './scripts/listPlaylist.js';
 	TODO: 
 	- allow users to select data to save to the CSV.
 	- Display infomation about the User e.g. profile pic, username, account age etc
-	- Save access & refresh token to session storage and remove it from the hash
-	- Break script.js into modules
 	- Create a footer and link it back to website, github and twitter etc
 */
 
-let accessToken;
-let refreshToken;
+// let accessToken;
+// let refreshToken;
 
 let data;
 let currentTrack = 0;
 let totalTracks = 0;
 
 let totalSeconds = 0;
+
+let savedSongsObj = {
+	total: 0,
+	totalSeconds: 0,
+	items: [],
+};
 
 let playlistObj = {
 	total: 0,
@@ -69,7 +73,7 @@ function resetTable() {
 }
 
 async function getTracks(url) {
-	const data = await fetchAPI(accessToken, refreshToken, url);
+	const data = await fetchAPI(url);
 	if (data) {
 		totalTracks = data.total;
 		data.items.forEach(generateTableRecords);
@@ -143,11 +147,9 @@ function generateTableRecords(item) {
 }
 
 async function getAccountInfo() {
-	const data = await fetchAPI(
-		accessToken,
-		refreshToken,
-		'https://api.spotify.com/v1/me',
-	);
+	const access_token = sessionStorage.getItem('access_token');
+	const refresh_token = sessionStorage.getItem('refresh_token');
+	const data = await fetchAPI('https://api.spotify.com/v1/me');
 	console.log('[AccountData]: ', data);
 
 	document.querySelector('#spotifyLogin').classList.add('is-hidden');
@@ -160,11 +162,7 @@ async function getAccountInfo() {
 }
 
 async function loadPlaylist(id) {
-	const data = await fetchAPI(
-		accessToken,
-		refreshToken,
-		`https://api.spotify.com/v1/playlists/${id}`,
-	);
+	const data = await fetchAPI(`https://api.spotify.com/v1/playlists/${id}`);
 	console.log('[loadPlaylist]: ', data);
 	resetTable();
 	getTracks(data.tracks.href);
@@ -174,22 +172,37 @@ async function loadPlaylist(id) {
 async function getPlaylists(
 	url = 'https://api.spotify.com/v1/me/playlists?limit=50',
 ) {
-	const playlistData = await fetchAPI(accessToken, refreshToken, url);
+	const playlistData = await fetchAPI(url);
 	console.log('[playlistData]: ', playlistData);
 
 	if (playlistData) {
 		playlistObj.total = playlistData.total;
+		document.querySelector(
+			'#playlistsStats',
+		).textContent = `${playlistData.total} playlists available`;
 		playlistObj.items.push(...playlistData.items);
 		if (playlistData.next) {
-			// getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+			getPlaylists(playlistData.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 		}
 		playlistData.items.forEach(addPlaylistSelectOption);
 	}
 }
 
 async function init() {
+	document
+		.querySelector('#checkboxPlaylistNumber')
+		.addEventListener('change', (e) => {
+			console.log(e.explicitOriginalTarget.checked);
+			document.querySelector('#tableHead').classList.toggle('tableColHide1');
+			document.querySelector('#tableBody').classList.toggle('tableColHide1');
+		});
+
 	document.querySelector('#btnExport').addEventListener('click', function () {
 		exportToCsv('tracklist.csv', songArray);
+	});
+
+	document.querySelector('#btnShowTable').addEventListener('click', () => {
+		document.querySelector('#tableDiv').classList.remove('is-hidden');
 	});
 
 	document
@@ -207,6 +220,8 @@ async function init() {
 
 	document.querySelector('#btnSelectPlaylist').addEventListener('click', () => {
 		playlistTabSelected();
+		resetTable();
+		isPlaylist = false;
 	});
 
 	document
@@ -216,19 +231,30 @@ async function init() {
 			console.log('selected playlist', value);
 			if (value != 'null') {
 				isPlaylist = true;
+				document.querySelector('#btnShowTable').disabled = false;
 				loadPlaylist(value);
+			} else {
+				document.querySelector('#btnShowTable').disabled = true;
 			}
 		});
 
+	document.querySelector('#btnLogout').addEventListener('click', () => {
+		sessionStorage.clear();
+		window.location.reload();
+	});
+
 	if (location.hash) {
 		const search = location.hash.slice(1).split('&');
-		accessToken = search[0].slice(13); // cut off beginning of string array element
-		refreshToken = search[1].slice(14);
+		const accessToken = search[0].slice(13); // cut off beginning of string array element
+		const refreshToken = search[1].slice(14);
 		console.log('access ', accessToken);
 		console.log('refresh ', refreshToken);
+		sessionStorage.setItem('access_token', accessToken);
+		sessionStorage.setItem('refresh_token', refreshToken);
 		// document.querySelector('#optionBtns').classList.toggle('is-hidden');
-		getAccountInfo();
+		window.location.href = window.location.href.split('#')[0];
 	}
+	getAccountInfo();
 }
 
 window.addEventListener('load', init);
