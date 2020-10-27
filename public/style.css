@@ -1,3 +1,35 @@
 .tableColHide1 tr > *:nth-child(1) {
 	display: none;
 }
+
+.tableColHide2 tr > *:nth-child(2) {
+	display: none;
+}
+
+.tableColHide3 tr > *:nth-child(3) {
+	display: none;
+}
+
+.tableColHide4 tr > *:nth-child(4) {
+	display: none;
+}
+
+.tableColHide5 tr > *:nth-child(5) {
+	display: none;
+}
+
+.tableColHide6 tr > *:nth-child(6) {
+	display: none;
+}
+
+.tableColHide7 tr > *:nth-child(7) {
+	display: none;
+}
+
+.tableColHide8 tr > *:nth-child(8) {
+	display: none;
+}
+
+.tableColHide9 tr > *:nth-child(9) {
+	display: none;
+}

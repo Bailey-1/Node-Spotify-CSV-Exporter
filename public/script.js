@@ -189,13 +189,90 @@ async function getPlaylists(
 }
 
 async function init() {
-	document
-		.querySelector('#checkboxPlaylistNumber')
-		.addEventListener('change', (e) => {
-			console.log(e.explicitOriginalTarget.checked);
-			document.querySelector('#tableHead').classList.toggle('tableColHide1');
-			document.querySelector('#tableBody').classList.toggle('tableColHide1');
+	const allCheckboxes = document.querySelectorAll('input[type=checkbox]');
+	console.log(allCheckboxes);
+
+	allCheckboxes.forEach((checkbox) => {
+		console.log(checkbox);
+		checkbox.addEventListener('change', function (e) {
+			console.log('event');
+			console.log(e.explicitOriginalTarget);
+			switch (e.explicitOriginalTarget.id) {
+				case 'checkboxPlaylistNumber':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide1');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide1');
+					break;
+				case 'checkboxTrackName':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide2');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide2');
+					break;
+				case 'checkboxArtist':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide3');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide3');
+					break;
+				case 'checkboxAlbum':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide4');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide4');
+					break;
+				case 'checkboxDiscNumber':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide5');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide5');
+					break;
+				case 'checkboxTrackNumber':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide6');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide6');
+					break;
+				case 'checkboxDuration':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide7');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide7');
+					break;
+				case 'checkboxAddedAt':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide8');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide8');
+					break;
+				case 'checkboxSpotifyID':
+					document
+						.querySelector('#tableHead')
+						.classList.toggle('tableColHide9');
+					document
+						.querySelector('#tableBody')
+						.classList.toggle('tableColHide9');
+					break;
+			}
 		});
+	});
 
 	document.querySelector('#btnExport').addEventListener('click', function () {
 		exportToCsv('tracklist.csv', songArray);
