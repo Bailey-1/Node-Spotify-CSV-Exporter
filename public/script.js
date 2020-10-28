@@ -12,25 +12,20 @@ import { addPlaylistSelectOption } from './scripts/listPlaylist.js';
 /* 
 	TODO: 
 	- allow users to select data to save to the CSV.
-	- Display infomation about the User e.g. profile pic, username, account age etc
 	- Create a footer and link it back to website, github and twitter etc
+	- Add stats to the csv file at the top
 */
 
-// let accessToken;
-// let refreshToken;
+let el = {
+	checkbox: {},
+};
 
-let data;
 let currentTrack = 0;
 let totalTracks = 0;
 
 let totalSeconds = 0;
 
-let savedSongsObj = {
-	total: 0,
-	totalSeconds: 0,
-	items: [],
-};
-
+// Array for all of the different playlists available
 let playlistObj = {
 	total: 0,
 	items: [],
@@ -56,7 +51,6 @@ function resetTable() {
 	removeContentFrom(document.querySelector('#tableBody'));
 	currentTrack = 0;
 	totalTracks = 0;
-	data = null;
 	songArray = [
 		[
 			'Number',
@@ -72,6 +66,7 @@ function resetTable() {
 	];
 }
 
+// Get all of the tracks from a track url.
 async function getTracks(url) {
 	const data = await fetchAPI(url);
 	if (data) {
@@ -152,11 +147,12 @@ async function getAccountInfo() {
 	const data = await fetchAPI('https://api.spotify.com/v1/me');
 	console.log('[AccountData]: ', data);
 
-	document.querySelector('#spotifyLogin').classList.add('is-hidden');
-
-	document.querySelector('#accountDetails').classList.remove('is-hidden');
-	document.querySelector('#accountName').textContent = data.display_name;
-	document.querySelector('#accountName').href = data.external_urls.spotify;
+	if (data) {
+		document.querySelector('#spotifyLogin').classList.add('is-hidden');
+		document.querySelector('#accountDetails').classList.remove('is-hidden');
+		document.querySelector('#accountName').textContent = data.display_name;
+		document.querySelector('#accountName').href = data.external_urls.spotify;
+	}
 
 	getPlaylists();
 }
@@ -188,15 +184,88 @@ async function getPlaylists(
 	}
 }
 
+function calculateColumns() {
+	// Create a new copy of the array not a reference this looks stupid cause its a 2d array so you cant just use the spread operator
+
+	let newSongArray = [];
+	songArray.map((trackarray) => {
+		newSongArray.push([...trackarray]);
+	});
+
+	console.log('newsongarraylength: ', newSongArray.length);
+	// Loop through each record and remove an element if the coresponding checkbox is not checked
+	for (let i = 0; i < newSongArray.length; i++) {
+		console.log(newSongArray[i]);
+
+		// define offset because when a col is delete others move over one.
+		let offset = 0;
+
+		// Probably a better way but idk
+		if (el.checkbox.playlistNumber.checked === false) {
+			newSongArray[i].splice(0, 1);
+			offset++;
+		}
+		if (el.checkbox.trackName.checked === false) {
+			newSongArray[i].splice(1 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.artist.checked === false) {
+			newSongArray[i].splice(2 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.album.checked === false) {
+			newSongArray[i].splice(3 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.discNumber.checked === false) {
+			newSongArray[i].splice(4 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.trackNumber.checked === false) {
+			newSongArray[i].splice(5 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.duration.checked === false) {
+			newSongArray[i].splice(6 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.addedAt.checked === false) {
+			newSongArray[i].splice(7 - offset, 1);
+			offset++;
+		}
+		if (el.checkbox.spotifyId.checked === false) {
+			newSongArray[i].splice(8 - offset, 1);
+			offset++;
+		}
+		console.log(newSongArray[i]);
+		console.log(songArray[i]);
+	}
+
+	exportToCsv('tracklist.csv', newSongArray);
+}
+
+function addEventHandlers() {
+	el.checkbox.playlistNumber = document.querySelector(
+		'#checkboxPlaylistNumber',
+	);
+	el.checkbox.trackName = document.querySelector('#checkboxTrackName');
+	el.checkbox.artist = document.querySelector('#checkboxArtist');
+	el.checkbox.album = document.querySelector('#checkboxAlbum');
+	el.checkbox.discNumber = document.querySelector('#checkboxDiscNumber');
+	el.checkbox.trackNumber = document.querySelector('#checkboxTrackNumber');
+	el.checkbox.duration = document.querySelector('#checkboxDuration');
+	el.checkbox.addedAt = document.querySelector('#checkboxAddedAt');
+	el.checkbox.spotifyId = document.querySelector('#checkboxSpotifyID');
+}
+
 async function init() {
+	addEventHandlers();
 	const allCheckboxes = document.querySelectorAll('input[type=checkbox]');
 	console.log(allCheckboxes);
 
 	allCheckboxes.forEach((checkbox) => {
-		console.log(checkbox);
+		checkbox.checked = true;
 		checkbox.addEventListener('change', function (e) {
-			console.log('event');
-			console.log(e.explicitOriginalTarget);
 			switch (e.explicitOriginalTarget.id) {
 				case 'checkboxPlaylistNumber':
 					document
@@ -275,7 +344,7 @@ async function init() {
 	});
 
 	document.querySelector('#btnExport').addEventListener('click', function () {
-		exportToCsv('tracklist.csv', songArray);
+		calculateColumns();
 	});
 
 	document.querySelector('#btnShowTable').addEventListener('click', () => {
@@ -298,7 +367,6 @@ async function init() {
 	document.querySelector('#btnSelectPlaylist').addEventListener('click', () => {
 		playlistTabSelected();
 		resetTable();
-		isPlaylist = false;
 	});
 
 	document
