@@ -35,8 +35,8 @@ let isPlaylist = false;
 
 let songArray = [
 	[
-		'Number',
-		'Name',
+		'Playlist Number',
+		'Track Name',
 		'Artist',
 		'Album',
 		'Disc No.',
@@ -79,6 +79,7 @@ async function getTracks(url) {
 	}
 }
 
+// Generate a table record for each item and add the same info to the array
 function generateTableRecords(item) {
 	const template = document.querySelector('#tableRecord');
 	const clone = document.importNode(template.content, true);
@@ -142,8 +143,6 @@ function generateTableRecords(item) {
 }
 
 async function getAccountInfo() {
-	const access_token = sessionStorage.getItem('access_token');
-	const refresh_token = sessionStorage.getItem('refresh_token');
 	const data = await fetchAPI('https://api.spotify.com/v1/me');
 	console.log('[AccountData]: ', data);
 
@@ -152,6 +151,9 @@ async function getAccountInfo() {
 		document.querySelector('#accountDetails').classList.remove('is-hidden');
 		document.querySelector('#accountName').textContent = data.display_name;
 		document.querySelector('#accountName').href = data.external_urls.spotify;
+
+		document.querySelector('#btnSelectSaved').disabled = false;
+		document.querySelector('#btnSelectPlaylist').disabled = false;
 	}
 
 	getPlaylists();
@@ -186,7 +188,6 @@ async function getPlaylists(
 
 function calculateColumns() {
 	// Create a new copy of the array not a reference this looks stupid cause its a 2d array so you cant just use the spread operator
-
 	let newSongArray = [];
 	songArray.map((trackarray) => {
 		newSongArray.push([...trackarray]);
@@ -197,7 +198,7 @@ function calculateColumns() {
 	for (let i = 0; i < newSongArray.length; i++) {
 		console.log(newSongArray[i]);
 
-		// define offset because when a col is delete others move over one.
+		// define offset because when a column is delete others move over one.
 		let offset = 0;
 
 		// Probably a better way but idk
@@ -205,6 +206,7 @@ function calculateColumns() {
 			newSongArray[i].splice(0, 1);
 			offset++;
 		}
+
 		if (el.checkbox.trackName.checked === false) {
 			newSongArray[i].splice(1 - offset, 1);
 			offset++;
@@ -244,6 +246,7 @@ function calculateColumns() {
 	exportToCsv('tracklist.csv', newSongArray);
 }
 
+// Define event handlers
 function addEventHandlers() {
 	el.checkbox.playlistNumber = document.querySelector(
 		'#checkboxPlaylistNumber',
@@ -384,8 +387,11 @@ async function init() {
 		});
 
 	document.querySelector('#btnLogout').addEventListener('click', () => {
+		document.querySelector('#btnSelectSaved').disabled = true;
+		document.querySelector('#btnSelectPlaylist').disabled = true;
 		sessionStorage.clear();
-		window.location.reload();
+
+		window.location.reload(true);
 	});
 
 	if (location.hash) {

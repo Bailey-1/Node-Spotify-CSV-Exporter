@@ -48,18 +48,15 @@
 		</section>
 
 		<!-- Options -->
-		<section class="section">
-			<h2 class="subtitle is-4">Choose a type:</h2>
-			<div class="tabs is-boxed is-centered is-fullwidth is-toggle">
-				<ul>
-				  	<li id="btnSelectSavedTab">
-						<a id="btnSelectSaved">Saved Tracks</a>
-				  	</li>
-				  	<li id="btnSelectPlaylistTab">
-						<a id="btnSelectPlaylist">Playlist</a>
-				  	</li>
-				</ul>
-			  </div>
+		<section class="section" style="padding-bottom: 1em;">
+			<div class="container" style="padding-bottom: 1em;">
+				<h2 class="subtitle is-4">Choose a type:</h2>
+				<div class="buttons has-addons">
+					<button id="btnSelectSaved" class="button" disabled>Saved Tracks **WARNING: Lots of data**</button>
+					<button id="btnSelectPlaylist" class="button" disabled>Playlist</button>
+				</div>
+			</div>
+			  
 			<div id="optionsContainer" class="container is-hidden">
 				<nav id="selectPlaylistDiv" class="is-hidden">
 					<p class="panel-heading">CSV Options:</p>
@@ -162,7 +159,7 @@
 		</section>
 
 		<!-- Footer -->
-		<section class="hero has-background-info">
+		<section class="hero has-background-info" style="padding-top: 1em;">
 			<div class="hero-body">
 			  <div class="container">
 				<h2 class="subtitle">
