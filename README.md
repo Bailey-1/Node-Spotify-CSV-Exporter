@@ -40,3 +40,9 @@ A node webapp which allows you to download a CSV file with information about a s
 4. Rename `TEMPLATE.env` to `.env` and configure it with the `CLIENT_ID`, `CLIENT_SECRET`, and `CALLBACK_URL` from the spotify app.
 
 5. Start the server: `node server.js` and go to the web page: `http://localhost:8888`
+
+# Credit:
+
+- Bulma CSS Framework: https://github.com/jgthms/bulma https://bulma.io/
+
+- Github Corners: https://github.com/tholman/github-corners https://tholman.com/github-corners/
