@@ -73,7 +73,7 @@ async function getTracks(url) {
 		totalTracks = data.total;
 		data.items.forEach(generateTableRecords);
 		if (data.next) {
-			// getTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
+			getTracks(data.next); // TEMP COMMENT OUT TO REDUCE API CALLS
 		}
 		createStats(totalSeconds, totalTracks);
 	}
