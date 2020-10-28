@@ -11,9 +11,9 @@ import { addPlaylistSelectOption } from './scripts/listPlaylist.js';
 
 /* 
 	TODO: 
-	- allow users to select data to save to the CSV.
 	- Create a footer and link it back to website, github and twitter etc
 	- Add stats to the csv file at the top
+	- Fix some of this spaghetti code 🍝
 */
 
 let el = {
