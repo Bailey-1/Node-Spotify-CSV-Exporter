@@ -9,6 +9,8 @@ var client_id = process.env.CLIENT_ID; // Your client id
 var client_secret = process.env.CLIENT_SECRET; // Your secret
 var redirect_uri = process.env.REDIRECT_URL; // Your redirect uri
 
+console.log(redirect_uri);
+
 var generateRandomString = function (length) {
 	var text = '';
 	var possible =
@@ -53,7 +55,7 @@ app.get('/callback', function (req, res) {
 	// your application requests refresh and access tokens
 	// after checking the state parameter
 
-	console.log('[query] ', req.query);
+	// console.log('[query] ', req.query);
 
 	var code = req.query.code || null;
 	var state = req.query.state || null;

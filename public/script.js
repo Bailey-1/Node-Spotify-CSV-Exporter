@@ -193,54 +193,31 @@ function calculateColumns() {
 		newSongArray.push([...trackarray]);
 	});
 
-	console.log('newsongarraylength: ', newSongArray.length);
+	const selectedColArr = [
+		el.checkbox.playlistNumber.checked,
+		el.checkbox.trackName.checked,
+		el.checkbox.artist.checked,
+		el.checkbox.album.checked,
+		el.checkbox.discNumber.checked,
+		el.checkbox.trackNumber.checked,
+		el.checkbox.duration.checked,
+		el.checkbox.addedAt.checked,
+		el.checkbox.spotifyId.checked,
+	];
+
 	// Loop through each record and remove an element if the coresponding checkbox is not checked
 	for (let i = 0; i < newSongArray.length; i++) {
 		console.log(newSongArray[i]);
 
-		// define offset because when a column is delete others move over one.
-		let offset = 0;
+		let offset = 0; // define offset because when a column is deleted others move over one.
 
-		// Probably a better way but idk
-		if (el.checkbox.playlistNumber.checked === false) {
-			newSongArray[i].splice(0, 1);
-			offset++;
+		// Loop through each checkbox element result in array and remove corresponding element from arrays if false
+		for (let x = 0; x < selectedColArr.length; x++) {
+			if (selectedColArr[x] === false) {
+				newSongArray[i].splice(x - offset, 1);
+				offset++;
+			}
 		}
-
-		if (el.checkbox.trackName.checked === false) {
-			newSongArray[i].splice(1 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.artist.checked === false) {
-			newSongArray[i].splice(2 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.album.checked === false) {
-			newSongArray[i].splice(3 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.discNumber.checked === false) {
-			newSongArray[i].splice(4 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.trackNumber.checked === false) {
-			newSongArray[i].splice(5 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.duration.checked === false) {
-			newSongArray[i].splice(6 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.addedAt.checked === false) {
-			newSongArray[i].splice(7 - offset, 1);
-			offset++;
-		}
-		if (el.checkbox.spotifyId.checked === false) {
-			newSongArray[i].splice(8 - offset, 1);
-			offset++;
-		}
-		console.log(newSongArray[i]);
-		console.log(songArray[i]);
 	}
 
 	exportToCsv('tracklist.csv', newSongArray);
